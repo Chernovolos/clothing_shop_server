@@ -1,0 +1,12 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Order } from '../models/entities/order.entity';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([Order])],
+  providers: [],
+  controllers: [],
+  exports: [],
+  // exports: [TypeOrmModule],
+})
+export class OrderModule {}
