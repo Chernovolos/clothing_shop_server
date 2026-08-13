@@ -8,6 +8,8 @@ import { ImageModule } from './modules/image.module';
 import { ProductModule } from './modules/product.module';
 import { StockModule } from './modules/stock.module';
 import { TagModule } from './modules/tag.module';
+import { AuthModule } from './modules/auth.module';
+import { OrderModule } from './modules/order.module';
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { TagModule } from './modules/tag.module';
     ImageModule,
     StockModule,
     TagModule,
+    AuthModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],

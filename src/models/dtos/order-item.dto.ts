@@ -1,6 +1,7 @@
 import { OrderItemType } from '../../enums/order.enums';
 import { OrderItem } from '../entities/order-item.entity';
-import { IsEnum, IsNumber, IsPositive, Max } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsPositive, Max } from 'class-validator';
+import { ProductDetailsDto } from './product.dto';
 
 export class OrderItemDto {
   id: number;
@@ -11,15 +12,31 @@ export class OrderItemDto {
   quantity: number;
   price: number;
 
-  constructor(order_item: OrderItem) {
-    this.id = order_item.id;
-    this.type = order_item.type;
-    this.orderId = order_item.id;
-    this.productId = order_item.id;
-    this.stockId = order_item.id;
-    this.quantity = order_item.quantity;
-    this.price = order_item.price;
+  constructor(orderItem: OrderItem) {
+    this.id = orderItem.id;
+    this.type = orderItem.type;
+    this.orderId = orderItem.orderId;
+    this.productId = orderItem.productId;
+    this.stockId = orderItem.stockId;
+    this.quantity = orderItem.quantity;
+    this.price = orderItem.price;
   }
+}
+
+export class OrderItemDetailsDto extends OrderItemDto {
+  product?: ProductDetailsDto;
+
+  constructor(orderItem: OrderItem) {
+    super(orderItem);
+  }
+}
+
+export class NewOrderItemDto {
+  type: OrderItemType;
+  productId: number;
+  stockId: number;
+  quantity: number;
+  price: number;
 }
 
 export class CreateOrderItemDto {
@@ -36,9 +53,35 @@ export class CreateOrderItemDto {
   @IsPositive()
   @Max(999999.99)
   quantity: number;
+}
+
+export class UpdateOrderItemDto {
+  @IsNumber()
+  id: number;
+
+  @IsEnum(OrderItemType)
+  type: OrderItemType;
+
+  @IsNumber()
+  orderId: number;
+
+  @IsNumber()
+  productId: number;
+
+  @IsNumber()
+  stockId: number;
+
+  @IsNumber()
+  @IsPositive()
+  @Max(999999.99)
+  quantity: number;
 
   @IsNumber()
   @IsPositive()
   @Max(999999.99)
   price: number;
+
+  @IsOptional()
+  @IsNumber()
+  newStockId?: number;
 }

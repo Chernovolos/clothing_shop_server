@@ -1,10 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { OrderItemType } from '../../enums/order.enums';
 import { Order } from './order.entity';
 
@@ -15,15 +9,10 @@ export class OrderItem {
 
   @Column({
     type: 'int',
+    enum: OrderItemType,
     default: OrderItemType.PRODUCT,
   })
   type: OrderItemType;
-
-  @Column({
-    type: 'int',
-    name: 'order_id',
-  })
-  orderId: number;
 
   @Column({
     type: 'int',
@@ -37,13 +26,19 @@ export class OrderItem {
   })
   stockId: number;
 
-  @Column()
+  @Column({ type: 'int' })
   quantity: number;
 
   @Column('double precision')
   price: number;
 
-  @ManyToOne(() => Order)
+  @Column({
+    type: 'int',
+    name: 'order_id',
+  })
+  orderId: number;
+
+  @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'order_id' })
   order: Order;
 }
