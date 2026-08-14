@@ -1,8 +1,4 @@
-import {
-  ProductCategory,
-  ProductSubType,
-  ProductType,
-} from '../../enums/product.enums';
+import { ProductCategory, ProductSubType, ProductType } from '../../enums/product.enums';
 import { Product } from '../entities/product.entity';
 import { ImageDto } from './image.dto';
 import { StockDto } from './stock.dto';
@@ -17,6 +13,7 @@ import {
   IsString,
   Max,
   MaxLength,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -30,9 +27,7 @@ export class ProductDto {
     this.id = product.id;
     this.title = product.title;
     this.price = product.price;
-    this.image = product.images?.length
-      ? new ImageDto(product.images[0])
-      : null;
+    this.image = product.images?.length ? new ImageDto(product.images[0]) : null;
   }
 }
 
@@ -76,10 +71,7 @@ export class CreateProductDto {
   description: string;
 
   @Type(() => Number)
-  @IsNumber(
-    { allowNaN: false, allowInfinity: false },
-    { message: 'Price must be a valid decimal number' },
-  )
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Price must be a valid decimal number' })
   @IsPositive()
   @Max(999999.99)
   price: number;
@@ -89,11 +81,6 @@ export class CreateProductDto {
 
   @IsEnum(ProductSubType)
   subType: ProductSubType;
-
-  // @IsArray()
-  // @ValidateNested({ each: true })
-  // @Type(() => TagDto)
-  // tags: TagDto[];
 
   @IsArray()
   @IsNumber({}, { each: true })
@@ -112,18 +99,26 @@ export class ProductFilterDto {
   type?: ProductType;
 
   @IsOptional()
+  @IsArray()
   @Type(() => Number)
-  @IsEnum(ProductSubType)
-  subType?: ProductSubType;
+  @IsEnum(ProductSubType, { each: true })
+  subType?: ProductSubType[];
 
-  @Type(() => Number)
   @IsOptional()
-  @IsPositive()
+  @Type(() => Number)
+  @Min(0)
   @Max(999999.99)
-  price?: number;
+  minPrice?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0)
+  @Max(999999.99)
+  maxPrice?: number;
 
   @IsOptional()
   @IsArray()
+  @Type(() => Number)
   @IsNumber({}, { each: true })
   tags?: number[];
 }

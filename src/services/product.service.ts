@@ -1,18 +1,8 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Product } from '../models/entities/product.entity';
-import {
-  CreateProductDto,
-  ProductFilterDto,
-  ProductDetailsDto,
-  ProductDto,
-} from '../models/dtos/product.dto';
+import { CreateProductDto, ProductFilterDto, ProductDetailsDto, ProductDto } from '../models/dtos/product.dto';
 import { TagService } from './tag.service';
 
 @Injectable()
@@ -79,6 +69,7 @@ export class ProductService {
       .leftJoinAndSelect('product.images', 'image')
       .leftJoinAndSelect('image.color', 'color')
       .leftJoinAndSelect('product.stocks', 'stocks')
+      .leftJoinAndSelect('stocks.color', 'stockColor')
       .where('1=1');
 
     if (filter.categoryType !== undefined) {
@@ -93,15 +84,21 @@ export class ProductService {
       });
     }
 
-    if (filter.subType !== undefined) {
-      qb.andWhere('product.subType = :subType', {
+    if (filter.subType?.length) {
+      qb.andWhere('product.subType IN (:...subType)', {
         subType: filter.subType,
       });
     }
 
-    if (filter.price !== undefined) {
-      qb.andWhere('product.price = :price', {
-        price: filter.price,
+    if (filter.minPrice !== undefined) {
+      qb.andWhere('product.price >= :minPrice', {
+        minPrice: filter.minPrice,
+      });
+    }
+
+    if (filter.maxPrice !== undefined) {
+      qb.andWhere('product.price <= :maxPrice', {
+        maxPrice: filter.maxPrice,
       });
     }
 
@@ -125,5 +122,21 @@ export class ProductService {
 
     this.logger.log('FILTER', filter);
     return qb.getMany();
+  }
+
+  async getProductsByIds(ids: number[]): Promise<ProductDetailsDto[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    const result = await this.productRepository.findBy({
+      id: In(ids),
+    });
+
+    if (result.length === 0) {
+      throw new NotFoundException(`Product  not found`);
+    }
+
+    return result.map((product) => new ProductDetailsDto(product));
   }
 }
