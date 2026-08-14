@@ -78,8 +78,8 @@ export class ProductService {
       });
     }
 
-    if (filter.type?.length) {
-      qb.andWhere('product.type IN (:...type)', {
+    if (filter.type !== undefined) {
+      qb.andWhere('product.type = :type', {
         type: filter.type,
       });
     }

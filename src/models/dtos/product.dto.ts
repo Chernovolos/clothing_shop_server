@@ -94,10 +94,9 @@ export class ProductFilterDto {
   categoryType?: ProductCategory;
 
   @IsOptional()
-  @IsArray()
   @Type(() => Number)
-  @IsEnum(ProductType, { each: true })
-  type?: ProductType[];
+  @IsEnum(ProductType)
+  type?: ProductType;
 
   @IsOptional()
   @IsArray()
