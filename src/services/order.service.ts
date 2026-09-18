@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from '../models/entities/order.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { CheckoutOrderDto, OrderDto } from '../models/dtos/order.dto';
 import { OrderItemType, OrderStatus } from '../enums/order.enums';
 import { CreateOrderItemDto, NewOrderItemDto, UpdateOrderItemDto } from '../models/dtos/order-item.dto';
@@ -61,6 +61,37 @@ export class OrderService {
 
         if (!order) throw error;
       }
+    }
+    return order;
+  }
+
+  async getOrders(userId: number): Promise<OrderDto[]> {
+    const orders = await this.orderRepository.find({
+      where: {
+        userId: userId,
+        status: Not(OrderStatus.NEW),
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return orders.map((order) => new OrderDto(order));
+  }
+
+  async getOrderById(orderId: number, userId: number): Promise<Order> {
+    const order = await this.orderRepository.findOne({
+      where: {
+        id: orderId,
+        userId: userId,
+      },
+      relations: {
+        orderItems: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Not found order');
     }
     return order;
   }
@@ -302,11 +333,13 @@ export class OrderService {
     order.lastName = checkOutOrderDto.lastName;
     order.email = checkOutOrderDto.email;
     order.phone = checkOutOrderDto.phone;
-    order.city = checkOutOrderDto.city;
+    order.npCityRef = checkOutOrderDto.npCityRef;
     order.comment = checkOutOrderDto.comment;
-    order.warehouseRef = checkOutOrderDto.warehouseRef;
-    order.warehouseLat = checkOutOrderDto.warehouseLat;
-    order.warehouseLon = checkOutOrderDto.warehouseLon;
+    order.npWarehouseRef = checkOutOrderDto.npWarehouseRef;
+    order.npWarehouseLat = checkOutOrderDto.npWarehouseLat;
+    order.npWarehouseLon = checkOutOrderDto.npWarehouseLon;
+    order.cityName = checkOutOrderDto.cityName;
+    order.warehouseName = checkOutOrderDto.warehouseName;
     order.status = OrderStatus.PROCESSING;
     order.paymentMethod = checkOutOrderDto.paymentMethod;
 

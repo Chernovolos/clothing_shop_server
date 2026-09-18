@@ -12,16 +12,19 @@ export class OrderDto {
   phone: string;
   comment?: string;
 
-  city: string;
-  warehouseRef: string;
-  warehouseLat?: number;
-  warehouseLon?: number;
+  npCityRef: string;
+  npWarehouseRef: string;
+  npWarehouseLat?: number;
+  npWarehouseLon?: number;
+  cityName: string;
+  warehouseName: string;
   paymentMethod?: number;
 
   quantity: number;
   total: number;
   status: OrderStatus;
   orderItems: OrderItemDetailsDto[];
+  createdAt?: Date;
 
   constructor(order: Order) {
     this.id = order.id;
@@ -31,15 +34,18 @@ export class OrderDto {
     this.phone = order.phone;
     this.comment = order.comment;
 
-    this.city = order.city;
-    this.warehouseRef = order.warehouseRef;
-    this.warehouseLat = order.warehouseLat;
-    this.warehouseLon = order.warehouseLon;
+    this.npCityRef = order.npCityRef;
+    this.npWarehouseRef = order.npWarehouseRef;
+    this.npWarehouseLat = order.npWarehouseLat;
+    this.npWarehouseLon = order.npWarehouseLon;
+    this.cityName = order.cityName;
+    this.warehouseName = order.warehouseName;
     this.paymentMethod = order.paymentMethod;
     this.quantity = order.quantity;
     this.total = order.total;
     this.status = order.status;
     this.orderItems = order.orderItems?.map((item) => new OrderItemDetailsDto(item)) ?? [];
+    this.createdAt = order.createdAt;
   }
 }
 
@@ -61,20 +67,26 @@ export class CheckoutOrderDto {
   comment?: string;
 
   @IsString()
-  city: string;
+  npCityRef: string;
 
   @IsString()
-  warehouseRef: string;
+  npWarehouseRef: string;
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  warehouseLat: number;
+  npWarehouseLat: number;
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  warehouseLon: number;
+  npWarehouseLon: number;
+
+  @IsString()
+  cityName: string;
+
+  @IsString()
+  warehouseName: string;
 
   @IsEnum(OrderPaymentType)
   paymentMethod: OrderPaymentType;

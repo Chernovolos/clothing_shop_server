@@ -121,4 +121,17 @@ export class ProductFilterDto {
   @Type(() => Number)
   @IsNumber({}, { each: true })
   tags?: number[];
+
+  @IsOptional()
+  @IsArray()
+  @Type(() => Number)
+  @IsNumber({}, { each: true })
+  sizes?: number[];
+
+  @IsOptional()
+  @IsArray()
+  @Type(() => Number)
+  @IsNumber({}, { each: true })
+  colors?: number[];
 }
+

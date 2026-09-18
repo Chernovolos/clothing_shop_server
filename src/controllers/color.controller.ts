@@ -9,7 +9,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ColorService } from '../services/color.service';
-import { CreateColorDto, UpdateColorDto } from '../models/dtos/color.dto';
+import { ColorDto, ColorFilterDto, CreateColorDto, UpdateColorDto } from '../models/dtos/color.dto';
 
 @Controller('colors')
 export class ColorController {
@@ -38,5 +38,11 @@ export class ColorController {
   @Delete(':id')
   deleteColor(@Param('id', ParseIntPipe) id: number) {
     return this.colorService.deleteColor(id);
+  }
+
+  @Post('filter')
+  async filterColors(@Body() filter: ColorFilterDto) {
+    const colors = await this.colorService.filterColors(filter);
+    return colors.map((color) => new ColorDto(color));
   }
 }

@@ -20,6 +20,16 @@ export class OrderController {
     return this.orderService.getOrderDto(order);
   }
 
+  @Get('history')
+  @UseGuards(JwtAuthGuard)
+  async getOrders(@Req() req: Request & { user: { userId: string } }) {
+    const userId: string | null = req.user.userId ?? null;
+    if (userId === null) {
+      throw new UnauthorizedException('You are not authorized to access this resource.');
+    }
+    return await this.orderService.getOrders(Number.parseInt(userId));
+  }
+
   @Put('order/checkout')
   @UseGuards(JwtAuthGuard)
   async checkout(@Req() req: Request & { user: { userId: string } }, @Body() checkOutOrderDto: CheckoutOrderDto) {
@@ -56,14 +66,22 @@ export class OrderController {
 
   @Delete('order-item/delete/:id')
   @UseGuards(JwtAuthGuard)
-  async deleteOrder(
-    @Req() req: Request & { user: { userId: string } },
-    @Param('id') id: string,
-  ) {
+  async deleteOrder(@Req() req: Request & { user: { userId: string } }, @Param('id') id: string) {
     const userId: string | null = req.user.userId ?? null;
     if (userId === null) {
       throw new UnauthorizedException('You are not authorized to access this resource.');
     }
     return this.orderService.removeItemFromOrder(Number.parseInt(userId), Number.parseInt(id));
+  }
+
+  @Get('order/:orderId')
+  @UseGuards(JwtAuthGuard)
+  async getOrderById(@Req() req: Request & { user: { userId: string } }, @Param('orderId') orderId: string) {
+    const userId: string | null = req.user.userId ?? null;
+    if (userId === null) {
+      throw new UnauthorizedException('You are not authorized to access this resource.');
+    }
+    const order = await this.orderService.getOrderById(Number.parseInt(orderId), Number.parseInt(userId, 10));
+    return this.orderService.getOrderDto(order);
   }
 }

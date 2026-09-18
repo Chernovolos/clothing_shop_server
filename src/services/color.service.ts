@@ -2,11 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Color } from '../models/entities/color.entity';
-import {
-  ColorDto,
-  CreateColorDto,
-  UpdateColorDto,
-} from '../models/dtos/color.dto';
+import { ColorDto, ColorFilterDto, CreateColorDto, UpdateColorDto } from '../models/dtos/color.dto';
 
 @Injectable()
 export class ColorService {
@@ -96,5 +92,45 @@ export class ColorService {
     }
 
     return color;
+  }
+
+  async filterColors(filter: ColorFilterDto): Promise<ColorDto[]> {
+    const query = this.colorRepository
+      .createQueryBuilder('c')
+      .select(['c.id AS id', 'c.code AS code', 'c.hex AS hex'])
+      .distinct(true)
+      .innerJoin('stock', 's', 's.color_id = c.id')
+      .innerJoin('products', 'p', 'p.id = s.product_id')
+      .where('s.available > 0');
+
+    if (filter.tags && filter.tags.length > 0) {
+      query.innerJoin('product_tags', 'pt', 'pt.product_id = p.id');
+      query.andWhere('pt.tag_id IN (:...tags)', { tags: filter.tags });
+    }
+
+    if (filter.categoryType) {
+      query.andWhere('p.category_type = :categoryType', { categoryType: filter.categoryType });
+    }
+
+    if (filter.type) {
+      query.andWhere('p.type = :type', { type: filter.type });
+    }
+
+    if (filter.subType && filter.subType.length > 0) {
+      query.andWhere('p.sub_type IN (:...subType)', { subType: filter.subType });
+    }
+
+    if(filter.sizes && filter.sizes.length > 0) {
+      query.andWhere('s.product_size IN (:...sizes)', { sizes: filter.sizes });
+    }
+
+    if (filter.minPrice !== undefined && filter.minPrice !== null && !isNaN(filter.minPrice)) {
+      query.andWhere('p.price >= :minPrice', { minPrice: filter.minPrice });
+    }
+
+    if (filter.maxPrice !== undefined && filter.maxPrice !== null && !isNaN(filter.maxPrice)) {
+      query.andWhere('p.price <= :maxPrice', { maxPrice: filter.maxPrice });
+    }
+    return await query.getRawMany();
   }
 }

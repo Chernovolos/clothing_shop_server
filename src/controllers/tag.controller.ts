@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { TagService } from '../services/tag.service';
-import { CreateTagDto, TagDto, UpdateTagDto } from '../models/dtos/tag.dto';
+import { CreateTagDto, TagDto, TagFilterDto, UpdateTagDto } from '../models/dtos/tag.dto';
 
 @Controller('tags')
 export class TagController {
@@ -14,6 +14,12 @@ export class TagController {
   @Get()
   getTags(): Promise<TagDto[]> {
     return this.tagService.getTags();
+  }
+
+  @Post('filter')
+  async filterTags(@Body() filter: TagFilterDto) {
+    const tags = await this.tagService.filterTags(filter);
+    return tags.map((tag) => new TagDto(tag));
   }
 
   @Get(':id')

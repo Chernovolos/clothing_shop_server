@@ -32,29 +32,35 @@ export class Order {
   @Column({ nullable: true })
   comment?: string;
 
-  @Column()
-  city: string;
+  @Column({ name: 'np_city_ref' })
+  npCityRef: string;
 
-  @Column({ name: 'warehouse_ref' })
-  warehouseRef: string;
+  @Column({ name: 'np_warehouse_ref' })
+  npWarehouseRef: string;
 
   @Column({
-    name: 'warehouse_lat',
+    name: 'np_warehouse_lat',
     type: 'decimal',
     precision: 9,
     scale: 6,
     nullable: true,
   })
-  warehouseLat?: number;
+  npWarehouseLat?: number;
 
   @Column({
-    name: 'warehouse_lon',
+    name: 'np_warehouse_lon',
     type: 'decimal',
     precision: 9,
     scale: 6,
     nullable: true,
   })
-  warehouseLon?: number;
+  npWarehouseLon?: number;
+
+  @Column({ name: 'city_name' })
+  cityName: string;
+
+  @Column({ name: 'warehouse_name' })
+  warehouseName: string;
 
   @Column({
     name: 'paid_at',
