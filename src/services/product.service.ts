@@ -102,6 +102,39 @@ export class ProductService {
       });
     }
 
+    if (filter.colors && filter.colors.length > 0) {
+      qb.andWhere((subQb) => {
+        const subQuery = subQb
+          .subQuery()
+          .select('1')
+          .from('stock', 's')
+          .where('s.product_id = product.id')
+          .andWhere('s.color_id IN (:...colors)', { colors: filter.colors })
+          .andWhere('s.available > 0')
+          .getQuery();
+
+        return `EXISTS ${subQuery}`;
+      });
+    }
+
+    if (filter.sizes && filter.sizes.length > 0) {
+      qb.andWhere(
+        (subQb) => {
+          const subQuery = subQb
+            .subQuery()
+            .select('1')
+            .from('stock', 's')
+            .where('s.product_id = product.id')
+            .andWhere('s.product_size IN (:...sizes)')
+            .andWhere('s.available > 0')
+            .getQuery();
+
+          return `EXISTS ${subQuery}`;
+        },
+        { sizes: filter.sizes },
+      );
+    }
+
     if (filter.tags && filter.tags.length > 0) {
       qb.andWhere((subQb) => {
         const subQuery = subQb
